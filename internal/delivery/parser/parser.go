@@ -151,12 +151,13 @@ func ParseMessage(r io.Reader) (*Message, error) {
 // unfoldHeaderValue removes RFC 2822 folding whitespace from a stored header value.
 // Handles both CRLF and LF folding, and encoded-word bleed from adjacent headers.
 func unfoldHeaderValue(value string) string {
-	// Remove CRLF+WSP and LF+WSP folding
-	value = strings.ReplaceAll(value, "\r\n\t", " ")
-	value = strings.ReplaceAll(value, "\r\n ", " ")
-	value = strings.ReplaceAll(value, "\n\t", " ")
-	value = strings.ReplaceAll(value, "\n ", " ")
-	return strings.TrimSpace(value)
+	replacer := strings.NewReplacer(
+		"\r\n\t", " ",
+		"\r\n ", " ",
+		"\n\t", " ",
+		"\n ", " ",
+	)
+	return strings.TrimSpace(replacer.Replace(value))
 }
 
 func ParseMIMEMessage(rawMessage string) (*ParsedMessage, error) {
